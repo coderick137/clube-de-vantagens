@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, Logger } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 
 import * as bcrypt from 'bcryptjs';
 import { CreateClienteDto } from '../dto/create-cliente.dto';
@@ -31,14 +36,14 @@ export class ClientesService {
 
       const senhaHash = await this.hashSenha(senha);
 
-      const novoCliente = this.clienteRepository.create({
+      const novoCliente = await this.clienteRepository.createClient({
         nome,
         email,
         senha: senhaHash,
         tipo,
       });
 
-      return this.clienteRepository.save(novoCliente);
+      return await this.clienteRepository.save(novoCliente);
     } catch (error) {
       this.logger.error(`Erro ao criar cliente: ${error.message}`);
       throw error;
@@ -47,20 +52,29 @@ export class ClientesService {
     }
   }
 
-  findAll() {
-    return `This action returns all clientes`;
+  async findByEmail(email: string): Promise<Cliente | undefined> {
+    this.logger.log(`Buscando cliente com email ${email}`);
+    try {
+      return await this.clienteRepository.findByEmail(email);
+    } catch (error) {
+      this.logger.error(`Erro ao buscar cliente: ${error.message}`);
+      throw error;
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} cliente`;
-  }
-
-  update(id: number, updateClienteDto: UpdateClienteDto) {
-    return `This action updates a #${id} cliente`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} cliente`;
+  async findAll(): Promise<Cliente[]> {
+    this.logger.log('Buscando todos os clientes');
+    try {
+      const clientes = await this.clienteRepository.findAllClients();
+      if (clientes.length === 0) {
+        this.logger.warn('A lista de clientes está vazia');
+        throw new NotFoundException('Nenhum cliente encontrado.');
+      }
+      return clientes;
+    } catch (error) {
+      this.logger.error(`Erro ao buscar clientes: ${error.message}`);
+      throw error;
+    }
   }
 
   async validarTipoCliente(tipo: string): Promise<void> {

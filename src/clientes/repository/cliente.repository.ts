@@ -27,22 +27,10 @@ export class ClienteRepository
     return await this.find();
   }
 
-  async findClientById(id: number): Promise<Cliente> {
-    const cliente = await this.findOne({ where: { id } });
-    if (!cliente) {
-      throw new NotFoundException(`Cliente com ID ${id} não encontrado`);
-    }
-    return cliente;
-  }
-
-  async updateClient(id: number, dto: UpdateClienteDto): Promise<Cliente> {
-    const cliente = await this.findClientById(id);
-    await this.update(id, dto);
-    return { ...cliente, ...dto };
-  }
-
-  async deleteClient(id: number): Promise<void> {
-    const cliente = await this.findClientById(id);
-    await this.remove(cliente);
+  async findByEmail(email: string): Promise<Cliente | undefined> {
+    const cliente = await this.createQueryBuilder('cliente')
+      .where('cliente.email = :email', { email })
+      .getOne();
+    return cliente ?? undefined;
   }
 }
