@@ -8,6 +8,7 @@ import {
   Matches,
   MaxLength,
 } from 'class-validator';
+import { TipoCliente } from '../entities/cliente.entity';
 
 export class CreateClienteDto {
   @IsString()
@@ -37,10 +38,11 @@ export class CreateClienteDto {
   })
   senha: string;
 
-  @IsIn(['admin', 'cliente'], { message: 'Tipo de cliente inválido' })
+  @IsIn(Object.values(TipoCliente), { message: 'Tipo de cliente inválido' })
   @ApiProperty({
-    example: 'cliente',
     description: 'Tipo de usuário (admin ou cliente)',
+    example: TipoCliente.CLIENTE,
+    enum: TipoCliente,
   })
-  tipo: 'admin' | 'cliente';
+  tipo: TipoCliente;
 }

@@ -9,6 +9,7 @@ import {
   MaxLength,
 } from 'class-validator';
 import { CreateClienteDto } from './create-cliente.dto';
+import { TipoCliente } from '../entities/cliente.entity';
 
 export class UpdateClienteDto extends PartialType(CreateClienteDto) {
   @IsOptional()
@@ -31,5 +32,5 @@ export class UpdateClienteDto extends PartialType(CreateClienteDto) {
 
   @IsOptional()
   @IsIn(['admin', 'cliente'], { message: 'Tipo de cliente inválido' })
-  tipo?: 'admin' | 'cliente';
+  tipo?: TipoCliente;
 }

@@ -15,10 +15,10 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('API de Produtos')
-    .setDescription('API de Produtos')
+    .setTitle('API para Clube de Vantagens')
+    .setDescription('API para Clube de Vantagens')
     .setVersion('1.0')
-    .addTag('produtos')
+    .addTag('API')
     .addBearerAuth()
     .build();
 
