@@ -1,15 +1,5 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { CreateClienteDto } from '../dto/create-cliente.dto';
-import { UpdateClienteDto } from '../dto/update-cliente.dto';
 import { ClientesService } from '../service/clientes.service';
 import {
   ApiBearerAuth,
@@ -17,7 +7,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Public } from '../../shared/decorators/public.decorator';
 import { AuthGuard } from '../../auth/guard/auth.guard';
 import { Roles } from '../../shared/decorators/roles.decorator';
 import { RolesGuard } from '../../shared/guards/roles.guard';
@@ -27,7 +16,8 @@ import { RolesGuard } from '../../shared/guards/roles.guard';
 export class ClientesController {
   constructor(private readonly clientesService: ClientesService) {}
 
-  @Public()
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @Post()
   @ApiOperation({ summary: 'Criar um novo cliente' })
   @ApiResponse({ status: 201, description: 'Cliente criado com sucesso.' })

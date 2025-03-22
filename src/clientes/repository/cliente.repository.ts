@@ -1,8 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { Cliente, TipoCliente } from '../entities/cliente.entity';
 import { CreateClienteDto } from '../dto/create-cliente.dto';
-import { UpdateClienteDto } from '../dto/update-cliente.dto';
 import { IClienteRepository } from '../interfaces/IClienteRepository';
 
 @Injectable()
@@ -17,7 +16,7 @@ export class ClienteRepository
   async createClient(dto: CreateClienteDto): Promise<Cliente> {
     const cliente = this.create({
       ...dto,
-      tipo: TipoCliente.CLIENTE,
+      tipo: dto.tipo as TipoCliente,
     });
 
     return await this.save(cliente);

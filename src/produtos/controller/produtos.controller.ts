@@ -3,22 +3,26 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
-  Delete,
+  UseGuards,
+  Query,
+  UnauthorizedException,
+  Logger,
 } from '@nestjs/common';
 import { ProdutosService } from '../service/produtos.service';
 import { CreateProdutoDto } from '../dto/create-produto.dto';
-import { UpdateProdutoDto } from '../dto/update-produto.dto';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Produto } from '../entities/produto.entity';
-import { Public } from '../../shared/decorators/public.decorator';
+import { AuthGuard } from '../../auth/guard/auth.guard';
 
 @Controller('produtos')
 export class ProdutosController {
+  private readonly logger = new Logger(ProdutosController.name);
+
   constructor(private readonly produtosService: ProdutosService) {}
 
-  @Public()
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @Post()
   @ApiOperation({ summary: 'Criar um novo produto' })
   @ApiResponse({
@@ -27,11 +31,26 @@ export class ProdutosController {
     type: CreateProdutoDto,
   })
   @ApiResponse({ status: 400, description: 'Dados inválidos.' })
+  @ApiResponse({
+    status: 401,
+    description: 'Token inválido ou não autorizado.',
+  })
   async create(@Body() createProdutoDto: CreateProdutoDto): Promise<Produto> {
-    return this.produtosService.create(createProdutoDto);
+    try {
+      return this.produtosService.create(createProdutoDto);
+    } catch (error) {
+      this.logger.error('Erro ao criar produto', error.stack);
+      if (error.name === 'JsonWebTokenError') {
+        throw new UnauthorizedException(
+          'Token inválido ou assinatura incorreta.',
+        );
+      }
+      throw error;
+    }
   }
 
-  @Public()
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @Get()
   @ApiOperation({ summary: 'Listar todos os produtos com paginação e filtros' })
   @ApiResponse({
@@ -39,15 +58,30 @@ export class ProdutosController {
     description: 'Lista de produtos retornada com sucesso.',
     type: [CreateProdutoDto],
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Token inválido ou não autorizado.',
+  })
   async findAll(
-    @Param('page') page: number,
-    @Param('limit') limit: number,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
     @Body() filters?: Record<string, any>,
   ): Promise<{ data: Produto[]; total: number }> {
-    return await this.produtosService.findAll(page, limit, filters);
+    try {
+      return await this.produtosService.findAll(page, limit, filters);
+    } catch (error) {
+      this.logger.error('Erro ao listar produtos', error.stack);
+      if (error.name === 'JsonWebTokenError') {
+        throw new UnauthorizedException(
+          'Token inválido ou assinatura incorreta.',
+        );
+      }
+      throw error;
+    }
   }
 
-  @Public()
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @Get(':id')
   @ApiOperation({ summary: 'Obter um produto pelo ID' })
   @ApiResponse({
@@ -56,7 +90,21 @@ export class ProdutosController {
     type: CreateProdutoDto,
   })
   @ApiResponse({ status: 404, description: 'Produto não encontrado.' })
+  @ApiResponse({
+    status: 401,
+    description: 'Token inválido ou não autorizado.',
+  })
   async findOne(@Param('id') id: string): Promise<Produto> {
-    return this.produtosService.findOne(id);
+    try {
+      return this.produtosService.findOne(id);
+    } catch (error) {
+      this.logger.error('Erro ao buscar produto', error.stack);
+      if (error.name === 'JsonWebTokenError') {
+        throw new UnauthorizedException(
+          'Token inválido ou assinatura incorreta.',
+        );
+      }
+      throw error;
+    }
   }
 }

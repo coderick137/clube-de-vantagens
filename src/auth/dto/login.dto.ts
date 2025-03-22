@@ -12,7 +12,7 @@ export class LoginDto {
   @IsEmail({}, { message: 'O email deve ser válido' })
   @IsNotEmpty({ message: 'O email do cliente é obrigatório' })
   @ApiProperty({
-    example: 'exemplo@email.com',
+    example: 'teste.exemplo@email.com',
     description: 'Email do cliente',
   })
   email: string;
@@ -25,7 +25,7 @@ export class LoginDto {
     message: 'A senha deve conter pelo menos uma letra e um número',
   })
   @ApiProperty({
-    example: 'senhadocliente1',
+    example: 'senhadoclienteteste1',
     description: 'Senha do cliente',
   })
   senha: string;
