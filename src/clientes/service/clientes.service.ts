@@ -47,8 +47,6 @@ export class ClientesService {
     } catch (error) {
       this.logger.error(`Erro ao criar cliente: ${error.message}`);
       throw error;
-    } finally {
-      this.logger.log(`Cliente criado com sucesso: ${createClienteDto.nome}`);
     }
   }
 

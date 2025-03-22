@@ -3,7 +3,9 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   CreateDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { CompraProduto } from '../../compras/entities/compra-produto.entity';
 
 @Entity('produtos')
 export class Produto {
@@ -21,6 +23,9 @@ export class Produto {
 
   @Column('decimal', { precision: 10, scale: 2, nullable: false })
   preco: number;
+
+  @OneToMany(() => CompraProduto, (compraProduto) => compraProduto.produto)
+  comprasProduto: CompraProduto[];
 
   @CreateDateColumn({
     name: 'created_at',

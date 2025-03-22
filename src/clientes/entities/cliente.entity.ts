@@ -3,7 +3,14 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   CreateDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { Compra } from '../../compras/entities/compra.entity';
+
+export enum TipoCliente {
+  ADMIN = 'admin',
+  CLIENTE = 'cliente',
+}
 
 @Entity('clientes')
 export class Cliente {
@@ -21,13 +28,15 @@ export class Cliente {
 
   @Column({
     type: 'enum',
-    enum: ['admin', 'cliente'],
-    default: 'cliente',
+    enum: TipoCliente,
+    default: TipoCliente.CLIENTE,
   })
-  tipo: 'admin' | 'cliente';
+  tipo: TipoCliente;
+
+  @OneToMany(() => Compra, (compra) => compra.cliente)
+  compras: Compra[];
 
   @CreateDateColumn({
-    name: 'criado_em',
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
   })
