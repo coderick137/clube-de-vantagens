@@ -1,6 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreatePagamentoDto } from '../dto/create-pagamento.dto';
-import { UpdatePagamentoDto } from '../dto/update-pagamento.dto';
 import { PagamentoRepository } from '../repository/pagamento.repository';
 import { CompraRepository } from '../../compras/repositories/compra.repository';
 import { Pagamento } from '../entities/pagamento.entity';

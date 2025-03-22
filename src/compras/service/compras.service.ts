@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCompraDto } from '../dto/create-compra.dto';
-import { UpdateCompraDto } from '../dto/update-compra.dto';
 import { CompraRepository } from '../repositories/compra.repository';
 import { CompraProdutoRepository } from '../repositories/compra-produto.repository';
 
@@ -37,6 +36,7 @@ export class ComprasService {
     return compras.map((compra) => ({
       id: compra.id,
       status: compra.status,
+      clienteId: compra.cliente.id,
       produtos: compra.produtos.map((prod) => ({
         produtoId: prod.produto.id,
         quantidade: prod.quantidade,

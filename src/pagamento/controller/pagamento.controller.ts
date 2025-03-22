@@ -1,14 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
-import { CreatePagamentoDto } from '../dto/create-pagamento.dto';
+import { Controller, Post, Param, UseGuards } from '@nestjs/common';
 import { PagamentoService } from '../service/pagamento.service';
 import {
   ApiBearerAuth,

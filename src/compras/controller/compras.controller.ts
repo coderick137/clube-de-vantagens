@@ -1,15 +1,5 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { CreateCompraDto } from '../dto/create-compra.dto';
-import { UpdateCompraDto } from '../dto/update-compra.dto';
 import { ComprasService } from '../service/compras.service';
 import { CurrentUser } from '../../shared/decorators/current-user.decorator';
 import { AuthGuard } from '../../auth/guard/auth.guard';

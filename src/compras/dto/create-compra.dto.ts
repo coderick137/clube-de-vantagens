@@ -11,11 +11,6 @@ import { CompraStatus } from '../entities/compra.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateCompraDto {
-  @IsNumber()
-  @IsNotEmpty({ message: 'O campo clienteId é obrigatório.' })
-  @ApiProperty({ example: 1 })
-  clienteId: number;
-
   @IsArray({ message: 'O campo produtos deve ser um array.' })
   @ValidateNested({ each: true })
   @Type(() => CreateCompraProdutoDto)

@@ -7,7 +7,6 @@ import {
 
 import * as bcrypt from 'bcryptjs';
 import { CreateClienteDto } from '../dto/create-cliente.dto';
-import { UpdateClienteDto } from '../dto/update-cliente.dto';
 import { ClienteRepository } from '../repository/cliente.repository';
 import { Cliente } from '../entities/cliente.entity';
 
