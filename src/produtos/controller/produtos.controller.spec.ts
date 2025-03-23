@@ -56,7 +56,7 @@ describe('ProdutosController', () => {
       createdAt: new Date(),
     };
 
-    it('should create a new product successfully', async () => {
+    it('deve criar um novo produto com sucesso', async () => {
       mockProdutosService.create.mockResolvedValue(createdProduto);
 
       const result = await controller.create(createProdutoDto);
@@ -66,13 +66,13 @@ describe('ProdutosController', () => {
       expect(produtosService.create).toHaveBeenCalledTimes(1);
     });
 
-    it('should throw an error if product creation fails', async () => {
+    it('deve lançar um erro se a criação do produto falhar', async () => {
       mockProdutosService.create.mockRejectedValue(
-        new Error('Creation failed'),
+        new Error('Falha na criação'),
       );
 
       await expect(controller.create(createProdutoDto)).rejects.toThrow(
-        'Creation failed',
+        'Falha na criação',
       );
       expect(produtosService.create).toHaveBeenCalledWith(createProdutoDto);
       expect(produtosService.create).toHaveBeenCalledTimes(1);
@@ -88,7 +88,7 @@ describe('ProdutosController', () => {
       total: 1,
     };
 
-    it('should return a paginated list of products', async () => {
+    it('deve retornar uma lista paginada de produtos', async () => {
       mockProdutosService.findAll.mockResolvedValue(mockResponse);
 
       const result = await controller.findAll(page, limit, filters);
@@ -129,7 +129,7 @@ describe('ProdutosController', () => {
       createdAt: new Date(),
     };
 
-    it('should return a product by ID', async () => {
+    it('deve retornar um produto pelo ID', async () => {
       mockProdutosService.findOne.mockResolvedValue(mockProduto);
 
       const result = await controller.findOne(id);
@@ -139,10 +139,12 @@ describe('ProdutosController', () => {
       expect(produtosService.findOne).toHaveBeenCalledTimes(1);
     });
 
-    it('should throw an error if product is not found', async () => {
-      mockProdutosService.findOne.mockRejectedValue(new Error('Not found'));
+    it('deve lançar um erro se o produto não for encontrado', async () => {
+      mockProdutosService.findOne.mockRejectedValue(
+        new Error('Não encontrado'),
+      );
 
-      await expect(controller.findOne(id)).rejects.toThrow('Not found');
+      await expect(controller.findOne(id)).rejects.toThrow('Não encontrado');
       expect(produtosService.findOne).toHaveBeenCalledWith(id);
       expect(produtosService.findOne).toHaveBeenCalledTimes(1);
     });
