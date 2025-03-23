@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Produto } from '../../produtos/entities/produto.entity';
 import { Compra } from './compra.entity';
 
@@ -17,4 +23,10 @@ export class CompraProduto {
 
   @Column({ type: 'int', nullable: false })
   quantidade: number;
+
+  @CreateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  createdAt: Date;
 }

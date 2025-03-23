@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
@@ -28,4 +29,10 @@ export class Compra {
 
   @Column({ type: 'enum', enum: CompraStatus, default: CompraStatus.PENDENTE })
   status: CompraStatus;
+
+  @CreateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  createdAt: Date;
 }
