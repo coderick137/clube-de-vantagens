@@ -13,7 +13,10 @@ export class ClienteRepository
     super(Cliente, dataSource.createEntityManager());
   }
 
-  async createClient(dto: CreateClienteDto, tipo: TipoCliente): Promise<Cliente> {
+  async createClient(
+    dto: CreateClienteDto,
+    tipo: TipoCliente,
+  ): Promise<Cliente> {
     const cliente = this.create({
       ...dto,
       tipo,

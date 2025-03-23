@@ -4,7 +4,6 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-
 import * as bcrypt from 'bcryptjs';
 import { CreateClienteDto } from '../dto/create-cliente.dto';
 import { ClienteRepository } from '../repository/cliente.repository';
@@ -24,80 +23,46 @@ export class ClientesService {
     this.logger.log(
       `Iniciando criação de cliente: ${JSON.stringify(createClienteDto)}`,
     );
-    this.logger.log(`Criando cliente: ${createClienteDto.nome}`);
 
-    try {
-      const { nome, email, senha } = createClienteDto;
+    this.validarTipoCliente(tipoCliente);
 
-      this.validarTipoCliente(tipoCliente);
+    const clienteExistente = await this.clienteRepository.findByEmail(
+      createClienteDto.email,
+    );
 
-      const clienteExistente = await this.clienteRepository.findByEmail(email);
-
-      if (clienteExistente) {
-        this.logger.warn(`Cliente com email ${email} já existe`);
-        throw new ConflictException(`Cliente com email ${email} já existe`);
-      }
-
-      const senhaHash = await this.hashSenha(senha);
-
-      const novoCliente = await this.clienteRepository.createClient(
-        {
-          nome,
-          email,
-          senha: senhaHash,
-        },
-        tipoCliente,
+    if (clienteExistente) {
+      this.logger.warn(`Cliente com email ${createClienteDto.email} já existe`);
+      throw new ConflictException(
+        `Cliente com email ${createClienteDto.email} já existe`,
       );
-
-      return await this.clienteRepository.createClient(
-        novoCliente,
-        tipoCliente,
-      );
-    } catch (error) {
-      this.logger.error(`Erro ao criar cliente: ${error.message}`, error.stack);
-      throw error;
     }
+
+    const senhaHash = await this.hashSenha(createClienteDto.senha);
+
+    return this.clienteRepository.createClient(
+      { ...createClienteDto, senha: senhaHash },
+      tipoCliente,
+    );
   }
 
   async findByEmail(email: string): Promise<Cliente | undefined> {
     this.logger.log(`Iniciando busca de cliente pelo email: ${email}`);
-    this.logger.log(`Buscando cliente com email ${email}`);
-    try {
-      const cliente = await this.clienteRepository.findByEmail(email);
-      if (!cliente) {
-        this.logger.warn(`Cliente não encontrado com o email: ${email}`);
-      }
-      return cliente;
-    } catch (error) {
-      this.logger.error(
-        `Erro ao buscar cliente: ${error.message}`,
-        error.stack,
-      );
-      throw error;
-    }
+    return this.clienteRepository.findByEmail(email);
   }
 
   async findAll(): Promise<Cliente[]> {
     this.logger.log('Iniciando busca de todos os clientes');
-    this.logger.log('Buscando todos os clientes');
-    try {
-      const clientes = await this.clienteRepository.findAllClients();
-      if (clientes.length === 0) {
-        this.logger.warn('Nenhum cliente encontrado na base de dados');
-        throw new NotFoundException('Nenhum cliente encontrado.');
-      }
-      this.logger.log(`Total de clientes encontrados: ${clientes.length}`);
-      return clientes;
-    } catch (error) {
-      this.logger.error(
-        `Erro ao buscar todos os clientes: ${error.message}`,
-        error.stack,
-      );
-      throw error;
+    const clientes = await this.clienteRepository.findAllClients();
+
+    if (clientes.length === 0) {
+      this.logger.warn('Nenhum cliente encontrado na base de dados');
+      throw new NotFoundException('Nenhum cliente encontrado.');
     }
+
+    return clientes;
   }
 
-  async validarTipoCliente(tipo: string): Promise<void> {
+  private validarTipoCliente(tipo: string): void {
     this.logger.log(`Validando tipo de cliente: ${tipo}`);
     if (!this.tipos.includes(tipo)) {
       this.logger.warn(`Tipo de cliente inválido: ${tipo}`);
@@ -109,15 +74,7 @@ export class ClientesService {
 
   private async hashSenha(senha: string): Promise<string> {
     this.logger.log('Iniciando hash da senha');
-    try {
-      const salt = await bcrypt.genSalt(10);
-      return bcrypt.hash(senha, salt);
-    } catch (error) {
-      this.logger.error(
-        `Erro ao gerar hash da senha: ${error.message}`,
-        error.stack,
-      );
-      throw error;
-    }
+    const salt = await bcrypt.genSalt(10);
+    return bcrypt.hash(senha, salt);
   }
 }
