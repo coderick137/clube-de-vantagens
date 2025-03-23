@@ -33,17 +33,17 @@ export class CreateProdutoDto {
   })
   descricao: string;
 
-  @IsString()
-  @IsNotEmpty({ message: 'A categoria do produto é obrigatória' })
-  @MaxLength(100, {
-    message: 'A categoria do produto deve ter no máximo 50 caracteres',
-  })
-  @ApiProperty({
-    example: 'Eletrônicos',
-    description:
-      'A categoria do produto. Deve ser uma string não vazia com no máximo 50 caracteres.',
-  })
-  categoria: string;
+  // @IsString()
+  // @IsNotEmpty({ message: 'A categoria do produto é obrigatória' })
+  // @MaxLength(100, {
+  //   message: 'A categoria do produto deve ter no máximo 50 caracteres',
+  // })
+  // @ApiProperty({
+  //   example: 'Eletrônicos',
+  //   description:
+  //     'A categoria do produto. Deve ser uma string não vazia com no máximo 50 caracteres.',
+  // })
+  // categoria: string;
 
   @IsNumber({}, { message: 'O preço do produto deve ser um número válido' })
   @Type(() => Number)

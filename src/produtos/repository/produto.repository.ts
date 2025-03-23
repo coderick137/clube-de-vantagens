@@ -3,6 +3,7 @@ import { DataSource, Repository } from 'typeorm';
 import { Produto } from '../entities/produto.entity';
 import { IProductRepository } from '../interfaces/IProductRepository';
 import { CreateProdutoDto } from '../dto/create-produto.dto';
+import { CategoriaEnum } from '../service/produtos.service';
 
 @Injectable()
 export class ProdutoRepository
@@ -12,8 +13,15 @@ export class ProdutoRepository
   constructor(private readonly dataSource: DataSource) {
     super(Produto, dataSource.createEntityManager());
   }
-  async createProduct(dto: CreateProdutoDto): Promise<Produto> {
-    const produto = this.create(dto);
+  async createProduct(
+    dto: CreateProdutoDto,
+    categoria: CategoriaEnum,
+  ): Promise<Produto> {
+    const produto = this.create({
+      ...dto,
+      categoria,
+    });
+
     return await this.save(produto);
   }
 

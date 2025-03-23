@@ -40,9 +40,18 @@ export class ProdutosController {
     status: 401,
     description: 'Token inválido ou não autorizado.',
   })
-  async create(@Body() createProdutoDto: CreateProdutoDto): Promise<Produto> {
+  @ApiQuery({
+    name: 'categoria',
+    enum: CategoriaEnum,
+    required: true,
+  })
+  async create(
+    @Body() createProdutoDto: CreateProdutoDto,
+    @Query('categoria') category: CategoriaEnum,
+  ): Promise<Produto> {
     try {
-      return this.produtosService.create(createProdutoDto);
+      const categoria = category as CategoriaEnum;
+      return this.produtosService.create(createProdutoDto, categoria);
     } catch (error) {
       this.logger.error('Erro ao criar produto', error.stack);
       if (error.name === 'JsonWebTokenError') {

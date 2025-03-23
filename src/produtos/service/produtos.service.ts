@@ -16,13 +16,16 @@ export class ProdutosService {
 
   constructor(private readonly produtoRepository: ProdutoRepository) {}
 
-  async create(createProdutoDto: CreateProdutoDto): Promise<Produto> {
+  async create(
+    createProdutoDto: CreateProdutoDto,
+    categoria: CategoriaEnum,
+  ): Promise<Produto> {
     this.logger.log(
       `Iniciando criação do produto: ${JSON.stringify(createProdutoDto)}`,
     );
     try {
       const produto =
-        await this.produtoRepository.createProduct(createProdutoDto);
+        await this.produtoRepository.createProduct(createProdutoDto, categoria);
       this.logger.log(`Produto criado com sucesso: ${JSON.stringify(produto)}`);
       return produto;
     } catch (error) {
@@ -45,10 +48,8 @@ export class ProdutosService {
 
       const filters: Record<string, any> = {};
       if (categoria) {
-        filters.categoria = categoria
+        filters.categoria = categoria;
       }
-
-      console.log('==========================>',filters);
 
       let result: { data: Produto[]; total: number };
 
