@@ -14,14 +14,21 @@ export class RelatoriosService {
   async gerarRelatorioVenda(
     filtros: CreateRelatorioDto,
   ): Promise<RelatorioVendaResponseDto> {
-    this.logger.log(`Iniciando geração de relatório com filtros: ${JSON.stringify(filtros)}`);
+    this.logger.log(
+      `Iniciando geração de relatório com filtros: ${JSON.stringify(filtros)}`,
+    );
     try {
-      const relatorio = await this.relatorioRepository.gerarRelatorioVenda(filtros);
+      const relatorio =
+        await this.relatorioRepository.gerarRelatorioVenda(filtros);
       this.logger.log('Relatório gerado com sucesso');
       return relatorio;
     } catch (error) {
       this.logger.error('Erro ao gerar relatório de vendas', error.stack);
       throw error;
     }
+  }
+
+  async getAll(): Promise<RelatorioVendaResponseDto[]> {
+    return this.relatorioRepository.getRelatoriosVendas();
   }
 }

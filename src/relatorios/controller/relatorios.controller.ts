@@ -1,4 +1,4 @@
-import { Controller, Post, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { RelatoriosService } from '../service/relatorios.service';
 import { CreateRelatorioDto } from '../dto/create-relatorio.dto';
 import { RelatorioVendaResponseDto } from '../dto/relatorio-venda-response';
@@ -29,5 +29,20 @@ export class RelatoriosController {
     @Query() filtro: CreateRelatorioDto,
   ): Promise<RelatorioVendaResponseDto> {
     return this.relatoriosService.gerarRelatorioVenda(filtro);
+  }
+
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @Get('vendas')
+  @ApiOperation({ summary: 'Listar relatórios de vendas' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de relatórios de vendas.',
+    type: RelatorioVendaResponseDto,
+    isArray: true,
+  })
+  @ApiResponse({ status: 400, description: 'Dados inválidos.' })
+  async getAll(): Promise<RelatorioVendaResponseDto[]> {
+    return this.relatoriosService.getAll();
   }
 }
