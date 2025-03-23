@@ -3,6 +3,13 @@ import { CreateProdutoDto } from '../dto/create-produto.dto';
 import { ProdutoRepository } from '../repository/produto.repository';
 import { Produto } from '../entities/produto.entity';
 
+export enum CategoriaEnum {
+  ELETRONICOS = 'Eletrônicos',
+  ELETRODOMESTICOS = 'Eletrodomesticos',
+  MOVEIS = 'Moveis',
+  BRINQUEDOS = 'Brinquedos',
+}
+
 @Injectable()
 export class ProdutosService {
   private readonly logger = new Logger(ProdutosService.name);
@@ -27,17 +34,42 @@ export class ProdutosService {
   async findAll(
     page: number,
     limit: number,
-    filters?: Record<string, any>,
+    categoria?: CategoriaEnum,
   ): Promise<{ data: Produto[]; total: number }> {
     this.logger.log(
-      `Buscando produtos - Página: ${page}, Limite: ${limit}, Filtros: ${JSON.stringify(filters)}`,
+      `Buscando produtos - Página: ${page}, Limite: ${limit}, Categoria: ${categoria}`,
     );
     try {
-      const result = await this.produtoRepository.findAllProducts(
-        page,
-        limit,
-        filters,
-      );
+      const validPage = Number(page) || 1;
+      const validLimit = Number(limit) || 10;
+
+      const filters: Record<string, any> = {};
+      if (categoria) {
+        filters.categoria = categoria
+      }
+
+      console.log('==========================>',filters);
+
+      let result: { data: Produto[]; total: number };
+
+      if (filters.categoria) {
+        const categoria = filters.categoria;
+        const [data, total] = await this.produtoRepository
+          .createQueryBuilder('p')
+          .where('p.categoria = :categoria', { categoria })
+          .take(validLimit)
+          .skip((validPage - 1) * validLimit)
+          .getManyAndCount();
+        result = { data, total };
+      } else {
+        const [data, total] = await this.produtoRepository.findAndCount({
+          where: filters,
+          take: validLimit,
+          skip: (validPage - 1) * validLimit,
+        });
+        result = { data, total };
+      }
+
       this.logger.log(
         `Produtos encontrados: ${result.data.length}, Total: ${result.total}`,
       );

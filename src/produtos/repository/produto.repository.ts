@@ -25,12 +25,24 @@ export class ProdutoRepository
     const validPage = Number(page) || 1;
     const validLimit = Number(limit) || 10;
 
+    if (filters?.categoria) {
+      const categoria = filters.categoria
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+      const [data, total] = await this.createQueryBuilder('p')
+        .where('LOWER(unaccent(p.categoria)) = :categoria', { categoria })
+        .take(validLimit)
+        .skip((validPage - 1) * validLimit)
+        .getManyAndCount();
+      return { data, total };
+    }
+
     const [data, total] = await this.findAndCount({
       where: filters,
       take: validLimit,
       skip: (validPage - 1) * validLimit,
     });
-
     return { data, total };
   }
 

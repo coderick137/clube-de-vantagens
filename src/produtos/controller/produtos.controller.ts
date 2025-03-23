@@ -9,9 +9,14 @@ import {
   UnauthorizedException,
   Logger,
 } from '@nestjs/common';
-import { ProdutosService } from '../service/produtos.service';
+import { CategoriaEnum, ProdutosService } from '../service/produtos.service';
 import { CreateProdutoDto } from '../dto/create-produto.dto';
-import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { Produto } from '../entities/produto.entity';
 import { AuthGuard } from '../../auth/guard/auth.guard';
 
@@ -62,13 +67,18 @@ export class ProdutosController {
     status: 401,
     description: 'Token inválido ou não autorizado.',
   })
+  @ApiQuery({
+    name: 'categoria',
+    enum: CategoriaEnum,
+    required: false,
+  })
   async findAll(
     @Query('page') page: number,
     @Query('limit') limit: number,
-    @Body() filters?: Record<string, any>,
+    @Query('categoria') categoria?: CategoriaEnum,
   ): Promise<{ data: Produto[]; total: number }> {
     try {
-      return await this.produtosService.findAll(page, limit, filters);
+      return await this.produtosService.findAll(page, limit, categoria);
     } catch (error) {
       this.logger.error('Erro ao listar produtos', error.stack);
       if (error.name === 'JsonWebTokenError') {

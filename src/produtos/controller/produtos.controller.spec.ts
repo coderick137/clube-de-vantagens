@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProdutosController } from './produtos.controller';
-import { ProdutosService } from '../service/produtos.service';
+import { CategoriaEnum, ProdutosService } from '../service/produtos.service';
 import { AuthGuard } from '../../auth/guard/auth.guard';
 import { CreateProdutoDto } from '../dto/create-produto.dto';
 import { Produto } from '../entities/produto.entity';
@@ -46,7 +46,7 @@ describe('ProdutosController', () => {
       nome: 'Produto 1',
       preco: 100,
       descricao: '',
-      categoria: '',
+      categoria: CategoriaEnum.ELETRONICOS,
     };
 
     const createdProduto: Produto = {
@@ -82,7 +82,7 @@ describe('ProdutosController', () => {
   describe('findAll', () => {
     const page = 1;
     const limit = 10;
-    const filters = { category: 'electronics' };
+    const filters = CategoriaEnum.ELETRONICOS;
     const mockResponse = {
       data: [{ id: '1', nome: 'Produto 1', preco: 100 }],
       total: 1,

@@ -1,8 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ProdutosService } from './produtos.service';
+import { CategoriaEnum, ProdutosService } from './produtos.service';
 import { ProdutoRepository } from '../repository/produto.repository';
 import { CreateProdutoDto } from '../dto/create-produto.dto';
-import { Produto } from '../entities/produto.entity';
 import { NotFoundException, Logger } from '@nestjs/common';
 import { CompraProduto } from '../../compras/entities/compra-produto.entity';
 
@@ -48,7 +47,7 @@ describe('ProdutosService', () => {
       nome: 'Produto Teste',
       preco: 100,
       descricao: 'Descrição do produto teste',
-      categoria: '',
+      categoria: CategoriaEnum.ELETRODOMESTICOS,
     };
 
     it('should create a product successfully', async () => {
@@ -81,14 +80,14 @@ describe('ProdutosService', () => {
     it('should return a list of products with pagination and filters', async () => {
       const page = 1;
       const limit = 10;
-      const filters = { nome: 'Produto Teste' };
+      const filters = CategoriaEnum.ELETRODOMESTICOS;
       const produtos = [
         {
           id: 1,
           nome: 'Produto Teste 1',
           preco: 100,
           descricao: 'Descrição 1',
-          categoria: 'Categoria 1',
+          categoria: CategoriaEnum.ELETRODOMESTICOS,
           comprasProduto: [],
           createdAt: new Date(),
         },
@@ -97,7 +96,7 @@ describe('ProdutosService', () => {
           nome: 'Produto Teste 2',
           preco: 200,
           descricao: 'Descrição 2',
-          categoria: 'Categoria 2',
+          categoria: CategoriaEnum.ELETRONICOS,
           comprasProduto: [],
           createdAt: new Date(),
         },
