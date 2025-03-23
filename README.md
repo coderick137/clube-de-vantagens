@@ -90,10 +90,6 @@ Swagger foi utilizado para gerar documentação automática da API, permitindo q
 
 ## Endpoints da API
 
-# Documentação da API
-
-Este documento fornece uma visão geral dos endpoints disponíveis e suas funcionalidades para a API. A API permite gerenciar clientes, produtos, compras, pagamentos e gerar relatórios de vendas.
-
 ## Sumário
 
 - [Autenticação](#autenticacao)
