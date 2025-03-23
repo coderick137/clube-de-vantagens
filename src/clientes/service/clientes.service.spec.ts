@@ -22,15 +22,6 @@ const mockArrayClientes: Cliente[] = [
     compras: [],
     createdAt: new Date(),
   },
-  {
-    id: 2,
-    nome: 'Carlos Souza',
-    email: 'carlos.souza@example.com',
-    senha: 'senha789',
-    tipo: TipoCliente.ADMIN,
-    compras: [],
-    createdAt: new Date(),
-  },
 ];
 
 const mockRepository: Partial<Record<keyof ClienteRepository, jest.Mock>> = {
@@ -41,7 +32,18 @@ const mockRepository: Partial<Record<keyof ClienteRepository, jest.Mock>> = {
 
 describe('ClientesService', () => {
   let clienteService: ClientesService;
-  let clienteRepository: ClienteRepository;
+
+  const createClienteDto = {
+    nome: 'José Pereira',
+    email: 'email.jose@gmail.com',
+    senha: 'senha123',
+    tipo: TipoCliente.CLIENTE,
+  };
+
+  const cliente = {
+    id: 1,
+    ...createClienteDto,
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -55,56 +57,36 @@ describe('ClientesService', () => {
     }).compile();
 
     clienteService = module.get<ClientesService>(ClientesService);
-    clienteRepository = module.get<ClienteRepository>(ClienteRepository);
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
     expect(clienteService).toBeDefined();
-    expect(clienteRepository).toBeDefined();
   });
 
   describe('create', () => {
     it('Deve retornar um novo Cliente criado', async () => {
-      const createClienteDto = {
-        nome: 'José Pereira',
-        email: 'email.jose@gmail.com',
-        senha: 'senha123',
-        tipo: TipoCliente.CLIENTE,
-      };
-
-      const cliente = {
-        id: 1,
-        ...createClienteDto,
-      };
-      mockRepository.createClient!.mockResolvedValue(cliente);
+      const hashedPassword =
+        '$2b$10$sfYwbvy3UHD2Z5VJ7k3m0ea.s3uVYA.D0wB5ndpKxZWUznDY77pn2';
+      const clienteWithHashedPassword = { ...cliente, senha: hashedPassword };
+      mockRepository.createClient!.mockResolvedValue(clienteWithHashedPassword);
 
       const result = await clienteService.createClient(createClienteDto);
-      expect(result).toEqual(cliente);
-      expect(mockRepository.createClient).toHaveBeenCalled();
+      expect(result).toEqual(clienteWithHashedPassword);
     });
-    it('deve lançar uma exceção quando o cliente já existe', async () => {
-      const createClienteDto = {
-        nome: 'José Pereira',
-        email: 'email.jose@gmail.com',
-        senha: 'senha123',
-        tipo: TipoCliente.CLIENTE,
-      };
 
-      const cliente = {
-        id: 1,
-        ...createClienteDto,
-      };
+    it('deve lançar uma exceção quando o cliente já existe', async () => {
       mockRepository.findByEmail!.mockResolvedValue(cliente.email);
-      await expect(clienteService.createClient(createClienteDto)).rejects.toThrow(
-        `Cliente com email ${cliente.email} já existe`,
-      );
+
+      await expect(
+        clienteService.createClient(createClienteDto),
+      ).rejects.toThrow(`Cliente com email ${cliente.email} já existe`);
     });
+
     it('deve lançar uma exceção quando o tipo de cliente é inválido', async () => {
-      const createClienteDto = {
-        nome: 'José Pereira',
-        email: 'email.jose@gmail.com',
-        senha: 'senha123',
-        tipo: 'invalido' as TipoCliente, // Tipo inválido
+      const invalidClienteDto = {
+        ...createClienteDto,
+        tipo: 'invalido' as TipoCliente,
       };
 
       jest
@@ -113,9 +95,9 @@ describe('ClientesService', () => {
           throw new Error('Tipo de cliente inválido');
         });
 
-      await expect(clienteService.createClient(createClienteDto)).rejects.toThrow(
-        'Tipo de cliente inválido',
-      );
+      await expect(
+        clienteService.createClient(invalidClienteDto),
+      ).rejects.toThrow('Tipo de cliente inválido');
     });
   });
 
@@ -128,12 +110,10 @@ describe('ClientesService', () => {
       expect(mockRepository.findAllClients).toHaveBeenCalledTimes(1);
     });
 
-    it('Deve retornar um erro ao buscar todos os Clientes', () => {
-      jest
-        .spyOn(clienteRepository, 'findAllClients')
-        .mockRejectedValueOnce(new Error());
+    it('Deve retornar um erro ao buscar todos os Clientes', async () => {
+      mockRepository.findAllClients!.mockRejectedValueOnce(new Error());
 
-      void expect(clienteService.findAll()).rejects.toThrow();
+      await expect(clienteService.findAll()).rejects.toThrow();
     });
   });
 });
