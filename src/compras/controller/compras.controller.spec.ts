@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ComprasController } from './compras.controller';
 import { ComprasService } from '../service/compras.service';
 import { AuthGuard } from '../../auth/guard/auth.guard';
-import { CurrentUser } from '../../shared/decorators/current-user.decorator';
 import { CompraStatus } from '../entities/compra.entity';
 
 describe('ComprasController', () => {
