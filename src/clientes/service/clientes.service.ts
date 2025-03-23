@@ -8,7 +8,7 @@ import {
 import * as bcrypt from 'bcryptjs';
 import { CreateClienteDto } from '../dto/create-cliente.dto';
 import { ClienteRepository } from '../repository/cliente.repository';
-import { Cliente } from '../entities/cliente.entity';
+import { Cliente, TipoCliente } from '../entities/cliente.entity';
 
 @Injectable()
 export class ClientesService {
@@ -17,15 +17,19 @@ export class ClientesService {
 
   constructor(private readonly clienteRepository: ClienteRepository) {}
 
-  async createClient(createClienteDto: CreateClienteDto): Promise<Cliente> {
+  async createClient(
+    createClienteDto: CreateClienteDto,
+    tipoCliente: TipoCliente,
+  ): Promise<Cliente> {
     this.logger.log(
       `Iniciando criação de cliente: ${JSON.stringify(createClienteDto)}`,
     );
     this.logger.log(`Criando cliente: ${createClienteDto.nome}`);
 
     try {
-      const { nome, email, senha, tipo } = createClienteDto;
-      this.validarTipoCliente(tipo);
+      const { nome, email, senha } = createClienteDto;
+
+      this.validarTipoCliente(tipoCliente);
 
       const clienteExistente = await this.clienteRepository.findByEmail(email);
 
@@ -36,14 +40,19 @@ export class ClientesService {
 
       const senhaHash = await this.hashSenha(senha);
 
-      const novoCliente = await this.clienteRepository.createClient({
-        nome,
-        email,
-        senha: senhaHash,
-        tipo,
-      });
+      const novoCliente = await this.clienteRepository.createClient(
+        {
+          nome,
+          email,
+          senha: senhaHash,
+        },
+        tipoCliente,
+      );
 
-      return await this.clienteRepository.createClient(novoCliente);
+      return await this.clienteRepository.createClient(
+        novoCliente,
+        tipoCliente,
+      );
     } catch (error) {
       this.logger.error(`Erro ao criar cliente: ${error.message}`, error.stack);
       throw error;

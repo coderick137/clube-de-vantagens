@@ -38,11 +38,4 @@ export class CreateClienteDto {
   })
   senha: string;
 
-  @IsIn(Object.values(TipoCliente), { message: 'Tipo de cliente inválido' })
-  @ApiProperty({
-    description: 'Tipo de usuário (admin ou cliente)',
-    example: TipoCliente.CLIENTE,
-    enum: TipoCliente,
-  })
-  tipo: TipoCliente;
 }
