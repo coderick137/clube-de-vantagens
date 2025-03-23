@@ -1,9 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CategoriaEnum, ProdutosService } from './produtos.service';
+import { ProdutosService } from './produtos.service';
 import { ProdutoRepository } from '../repository/produto.repository';
 import { CreateProdutoDto } from '../dto/create-produto.dto';
 import { NotFoundException, Logger } from '@nestjs/common';
 import { CompraProduto } from '../../compras/entities/compra-produto.entity';
+import { CategoriaEnum } from '../enums/categoria.enum';
 
 describe('ProdutosService', () => {
   let service: ProdutosService;
@@ -12,6 +13,7 @@ describe('ProdutosService', () => {
   const mockProdutoRepository = {
     createProduct: jest.fn(),
     findAllProducts: jest.fn(),
+    findAllWithPagination: jest.fn(),
     findById: jest.fn(),
   };
 
@@ -47,24 +49,28 @@ describe('ProdutosService', () => {
       nome: 'Produto Teste',
       preco: 100,
       descricao: 'Descrição do produto teste',
-      categoria: CategoriaEnum.ELETRODOMESTICOS,
     };
 
     it('should create a product successfully', async () => {
       const produto = {
         id: 1,
         ...createProdutoDto,
+        categoria: CategoriaEnum.ELETRODOMESTICOS,
         comprasProduto: [],
         createdAt: new Date(),
       };
 
       jest.spyOn(produtoRepository, 'createProduct').mockResolvedValue(produto);
 
-      const result = await service.create(createProdutoDto);
+      const result = await service.create(
+        createProdutoDto,
+        CategoriaEnum.ELETRODOMESTICOS,
+      );
 
       expect(result).toBe(produto);
       expect(produtoRepository.createProduct).toHaveBeenCalledWith(
         createProdutoDto,
+        CategoriaEnum.ELETRODOMESTICOS,
       );
     });
 
@@ -72,7 +78,9 @@ describe('ProdutosService', () => {
       const error = new Error('Erro ao criar produto');
       jest.spyOn(produtoRepository, 'createProduct').mockRejectedValue(error);
 
-      await expect(service.create(createProdutoDto)).rejects.toThrow(error);
+      await expect(
+        service.create(createProdutoDto, CategoriaEnum.ELETRODOMESTICOS),
+      ).rejects.toThrow(error);
     });
   });
 
@@ -109,13 +117,13 @@ describe('ProdutosService', () => {
       };
 
       jest
-        .spyOn(produtoRepository, 'findAllProducts')
+        .spyOn(produtoRepository, 'findAllWithPagination')
         .mockResolvedValue(result);
 
       const response = await service.findAll(page, limit, filters);
 
       expect(response).toBe(result);
-      expect(produtoRepository.findAllProducts).toHaveBeenCalledWith(
+      expect(produtoRepository.findAllWithPagination).toHaveBeenCalledWith(
         page,
         limit,
         filters,

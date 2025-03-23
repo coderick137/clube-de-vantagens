@@ -19,7 +19,9 @@ describe('PagamentoService', () => {
         {
           provide: PagamentoRepository,
           useValue: {
-            simulatePayment: jest.fn(),
+            findCompraById: jest.fn(),
+            createPagamento: jest.fn(),
+            updateCompraStatus: jest.fn(),
           },
         },
         {
@@ -47,7 +49,7 @@ describe('PagamentoService', () => {
   });
 
   describe('simulatePayment', () => {
-    it('should simulate payment successfully', async () => {
+    it('deve simular o pagamento com sucesso', async () => {
       const compraId = 1;
       const compra = {
         id: compraId,
@@ -63,39 +65,38 @@ describe('PagamentoService', () => {
         compra: compra,
       };
 
-      jest.spyOn(compraRepository, 'findOne').mockResolvedValue(compra);
       jest
-        .spyOn(pagamentoRepository, 'simulatePayment')
+        .spyOn(pagamentoRepository, 'findCompraById')
+        .mockResolvedValue(compra);
+      jest
+        .spyOn(pagamentoRepository, 'createPagamento')
         .mockResolvedValue(pagamento);
-      jest.spyOn(compraRepository, 'createCompra').mockReturnValue({
-        ...compra,
-        status: CompraStatus.PAGO,
-      } as any);
-      jest.spyOn(compraRepository, 'save').mockResolvedValue({
-        ...compra,
-        status: CompraStatus.PAGO,
-      });
+      jest
+        .spyOn(pagamentoRepository, 'updateCompraStatus')
+        .mockResolvedValue(undefined as any);
 
       const result = await service.simulatePayment(compraId);
 
       expect(result).toBe(pagamento);
-      expect(compraRepository.findOne).toHaveBeenCalled();
-      expect(pagamentoRepository.simulatePayment).toHaveBeenCalledWith(
-        compraId,
+      expect(pagamentoRepository.findCompraById).toHaveBeenCalledWith(compraId);
+      expect(pagamentoRepository.createPagamento).toHaveBeenCalledWith(compra);
+      expect(pagamentoRepository.updateCompraStatus).toHaveBeenCalledWith(
+        compra,
+        CompraStatus.PAGO,
       );
     });
 
-    it('should throw NotFoundException if compra is not found', async () => {
+    it('deve lançar NotFoundException se a compra não for encontrada', async () => {
       const compraId = 1;
 
-      jest.spyOn(compraRepository, 'findOne').mockResolvedValue(null);
+      jest.spyOn(pagamentoRepository, 'findCompraById').mockResolvedValue(null);
 
       await expect(service.simulatePayment(compraId)).rejects.toThrow(
         NotFoundException,
       );
     });
 
-    it('should throw error if payment simulation fails', async () => {
+    it('deve lançar erro se a simulação de pagamento falhar', async () => {
       const compraId = 1;
       const compra = {
         id: compraId,
@@ -106,15 +107,15 @@ describe('PagamentoService', () => {
       };
       const error = new Error('Erro ao simular pagamento');
 
-      jest.spyOn(compraRepository, 'findOne').mockResolvedValue(compra);
       jest
-        .spyOn(pagamentoRepository, 'simulatePayment')
+        .spyOn(pagamentoRepository, 'findCompraById')
+        .mockResolvedValue(compra);
+      jest
+        .spyOn(pagamentoRepository, 'createPagamento')
         .mockRejectedValue(error);
 
       await expect(service.simulatePayment(compraId)).rejects.toThrow(error);
-      expect(pagamentoRepository.simulatePayment).toHaveBeenCalledWith(
-        compraId,
-      );
+      expect(pagamentoRepository.createPagamento).toHaveBeenCalledWith(compra);
     });
   });
 });

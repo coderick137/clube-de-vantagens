@@ -71,7 +71,10 @@ describe('ClientesService', () => {
       const clienteWithHashedPassword = { ...cliente, senha: hashedPassword };
       mockRepository.createClient!.mockResolvedValue(clienteWithHashedPassword);
 
-      const result = await clienteService.createClient(createClienteDto);
+      const result = await clienteService.createClient(
+        createClienteDto,
+        TipoCliente.CLIENTE,
+      );
       expect(result).toEqual(clienteWithHashedPassword);
     });
 
@@ -79,7 +82,7 @@ describe('ClientesService', () => {
       mockRepository.findByEmail!.mockResolvedValue(cliente.email);
 
       await expect(
-        clienteService.createClient(createClienteDto),
+        clienteService.createClient(createClienteDto, TipoCliente.CLIENTE),
       ).rejects.toThrow(`Cliente com email ${cliente.email} já existe`);
     });
 
@@ -89,14 +92,11 @@ describe('ClientesService', () => {
         tipo: 'invalido' as TipoCliente,
       };
 
-      jest
-        .spyOn(clienteService, 'validarTipoCliente')
-        .mockImplementation(() => {
-          throw new Error('Tipo de cliente inválido');
-        });
-
       await expect(
-        clienteService.createClient(invalidClienteDto),
+        clienteService.createClient(
+          invalidClienteDto,
+          'invalido' as TipoCliente,
+        ),
       ).rejects.toThrow('Tipo de cliente inválido');
     });
   });

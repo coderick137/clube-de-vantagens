@@ -1,9 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProdutosController } from './produtos.controller';
-import { CategoriaEnum, ProdutosService } from '../service/produtos.service';
+import { ProdutosService } from '../service/produtos.service';
 import { AuthGuard } from '../../auth/guard/auth.guard';
 import { CreateProdutoDto } from '../dto/create-produto.dto';
 import { Produto } from '../entities/produto.entity';
+import { CategoriaEnum } from '../enums/categoria.enum';
 
 describe('ProdutosController', () => {
   let controller: ProdutosController;
@@ -46,12 +47,12 @@ describe('ProdutosController', () => {
       nome: 'Produto 1',
       preco: 100,
       descricao: '',
-      categoria: CategoriaEnum.ELETRONICOS,
     };
 
     const createdProduto: Produto = {
       id: 1,
       ...createProdutoDto,
+      categoria: CategoriaEnum.ELETRONICOS,
       comprasProduto: [],
       createdAt: new Date(),
     };
@@ -59,10 +60,16 @@ describe('ProdutosController', () => {
     it('deve criar um novo produto com sucesso', async () => {
       mockProdutosService.create.mockResolvedValue(createdProduto);
 
-      const result = await controller.create(createProdutoDto);
+      const result = await controller.create(
+        createProdutoDto,
+        CategoriaEnum.ELETRODOMESTICOS,
+      );
 
-      expect(result).toEqual(createdProduto); // Altere para verificar apenas o produto criado
-      expect(produtosService.create).toHaveBeenCalledWith(createProdutoDto);
+      expect(result).toEqual(createdProduto);
+      expect(produtosService.create).toHaveBeenCalledWith(
+        createProdutoDto,
+        CategoriaEnum.ELETRODOMESTICOS,
+      );
       expect(produtosService.create).toHaveBeenCalledTimes(1);
     });
 
@@ -71,10 +78,13 @@ describe('ProdutosController', () => {
         new Error('Falha na criação'),
       );
 
-      await expect(controller.create(createProdutoDto)).rejects.toThrow(
-        'Falha na criação',
+      await expect(
+        controller.create(createProdutoDto, CategoriaEnum.ELETRODOMESTICOS),
+      ).rejects.toThrow('Falha na criação');
+      expect(produtosService.create).toHaveBeenCalledWith(
+        createProdutoDto,
+        CategoriaEnum.ELETRODOMESTICOS,
       );
-      expect(produtosService.create).toHaveBeenCalledWith(createProdutoDto);
       expect(produtosService.create).toHaveBeenCalledTimes(1);
     });
   });

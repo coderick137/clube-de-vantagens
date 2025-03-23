@@ -60,11 +60,15 @@ describe('ClientesController', () => {
     it('Deve criar um novo cliente', async () => {
       mockClientesService.createClient.mockResolvedValue(createdCliente);
 
-      const result = await controller.create(createClienteDto);
+      const result = await controller.create(
+        createClienteDto,
+        TipoCliente.CLIENTE,
+      );
 
       expect(result).toBe(createdCliente);
       expect(clientesService.createClient).toHaveBeenCalledWith(
         createClienteDto,
+        TipoCliente.CLIENTE, // Corrigido para incluir o parâmetro tipo
       );
       expect(clientesService.createClient).toHaveBeenCalledTimes(1);
     });
