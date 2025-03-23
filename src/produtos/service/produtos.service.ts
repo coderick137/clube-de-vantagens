@@ -14,18 +14,24 @@ export class ProdutosService {
     createProdutoDto: CreateProdutoDto,
     categoria: CategoriaEnum,
   ): Promise<Produto> {
+    const timestamp = new Date().toISOString();
     this.logger.log(
-      `Iniciando criação do produto: ${JSON.stringify(createProdutoDto)}`,
+      `[${timestamp}] Iniciando criação do produto: ${JSON.stringify(createProdutoDto)}`,
     );
     try {
       const produto = await this.produtoRepository.createProduct(
         createProdutoDto,
         categoria,
       );
-      this.logger.log(`Produto criado com sucesso: ${JSON.stringify(produto)}`);
+      this.logger.log(
+        `[${timestamp}] Produto criado com sucesso: ${JSON.stringify(produto)}`,
+      );
       return produto;
     } catch (error) {
-      this.logger.error(`Erro ao criar produto: ${error.message}`, error.stack);
+      this.logger.error(
+        `[${timestamp}] Erro ao criar produto: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -35,8 +41,9 @@ export class ProdutosService {
     limit: number,
     categoria?: CategoriaEnum,
   ): Promise<{ data: Produto[]; total: number }> {
+    const timestamp = new Date().toISOString();
     this.logger.log(
-      `Buscando produtos - Página: ${page}, Limite: ${limit}, Categoria: ${categoria}`,
+      `[${timestamp}] Buscando produtos - Página: ${page}, Limite: ${limit}, Categoria: ${categoria}`,
     );
     try {
       const validPage = Number(page) || 1;
@@ -49,12 +56,12 @@ export class ProdutosService {
       );
 
       this.logger.log(
-        `Produtos encontrados: ${result.data.length}, Total: ${result.total}`,
+        `[${timestamp}] Produtos encontrados: ${result.data.length}, Total: ${result.total}`,
       );
       return result;
     } catch (error) {
       this.logger.error(
-        `Erro ao buscar produtos: ${error.message}`,
+        `[${timestamp}] Erro ao buscar produtos: ${error.message}`,
         error.stack,
       );
       throw error;
@@ -62,18 +69,23 @@ export class ProdutosService {
   }
 
   async findOne(id: string): Promise<Produto> {
-    this.logger.log(`Buscando produto com ID: ${id}`);
+    const timestamp = new Date().toISOString();
+    this.logger.log(`[${timestamp}] Buscando produto com ID: ${id}`);
     try {
       const produto = await this.produtoRepository.findById(+id);
       if (!produto) {
-        this.logger.warn(`Produto com ID ${id} não encontrado`);
+        this.logger.warn(
+          `[${timestamp}] Produto com ID ${id} não encontrado`,
+        );
         throw new NotFoundException(`Produto com ID ${id} não encontrado`);
       }
-      this.logger.log(`Produto encontrado: ${JSON.stringify(produto)}`);
+      this.logger.log(
+        `[${timestamp}] Produto encontrado: ${JSON.stringify(produto)}`,
+      );
       return produto;
     } catch (error) {
       this.logger.error(
-        `Erro ao buscar produto com ID ${id}: ${error.message}`,
+        `[${timestamp}] Erro ao buscar produto com ID ${id}: ${error.message}`,
         error.stack,
       );
       throw error;

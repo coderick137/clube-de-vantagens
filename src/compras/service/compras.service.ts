@@ -13,7 +13,10 @@ export class ComprasService {
   ) {}
 
   async create(createCompraDto: CreateCompraDto, clienteId: number) {
-    this.logger.log(`Iniciando criação de compra para clienteId: ${clienteId}`);
+    const timestamp = new Date().toISOString();
+    this.logger.log(
+      `[${timestamp}] [create] Iniciando criação de compra para clienteId: ${clienteId} com dados: ${JSON.stringify(createCompraDto)}`,
+    );
     try {
       const compra = await this.comprasRepository.createCompra(
         createCompraDto,
@@ -33,11 +36,13 @@ export class ComprasService {
         relations: ['produtos', 'produtos.produto', 'cliente'],
       });
 
-      this.logger.log(`Compra criada com sucesso para clienteId: ${clienteId}`);
+      this.logger.log(
+        `[${timestamp}] [create] Compra criada com sucesso para clienteId: ${clienteId}, compraId: ${compra.id}`,
+      );
       return result;
     } catch (error) {
       this.logger.error(
-        `Erro ao criar compra para clienteId: ${clienteId}`,
+        `[${timestamp}] [create] Erro ao criar compra para clienteId: ${clienteId}, detalhes: ${error.message}`,
         error.stack,
       );
       throw error;
@@ -45,13 +50,16 @@ export class ComprasService {
   }
 
   async listClientPurchases(clienteId: number) {
-    this.logger.log(`Listando compras para clienteId: ${clienteId}`);
+    const timestamp = new Date().toISOString();
+    this.logger.log(
+      `[${timestamp}] [listClientPurchases] Listando compras para clienteId: ${clienteId}`,
+    );
     try {
       const compras =
         await this.comprasRepository.listClientPurchases(clienteId);
 
       this.logger.log(
-        `Compras listadas com sucesso para clienteId: ${clienteId}`,
+        `[${timestamp}] [listClientPurchases] Compras listadas com sucesso para clienteId: ${clienteId}, total: ${compras.length}`,
       );
       return compras.map((compra) => ({
         id: compra.id,
@@ -64,7 +72,7 @@ export class ComprasService {
       }));
     } catch (error) {
       this.logger.error(
-        `Erro ao listar compras para clienteId: ${clienteId}`,
+        `[${timestamp}] [listClientPurchases] Erro ao listar compras para clienteId: ${clienteId}, detalhes: ${error.message}`,
         error.stack,
       );
       throw error;

@@ -14,21 +14,37 @@ export class RelatoriosService {
   async gerarRelatorioVenda(
     filtros: CreateRelatorioDto,
   ): Promise<RelatorioVendaResponseDto> {
+    const timestamp = new Date().toISOString();
     this.logger.log(
-      `Iniciando geração de relatório com filtros: ${JSON.stringify(filtros)}`,
+      `[${timestamp}] Iniciando geração de relatório com filtros: ${JSON.stringify(filtros)}`,
     );
     try {
       const relatorio =
         await this.relatorioRepository.gerarRelatorioVenda(filtros);
-      this.logger.log('Relatório gerado com sucesso');
+      this.logger.log(`[${timestamp}] Relatório gerado com sucesso`);
       return relatorio;
     } catch (error) {
-      this.logger.error('Erro ao gerar relatório de vendas', error.stack);
+      this.logger.error(
+        `[${timestamp}] Erro ao gerar relatório de vendas: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
 
   async getAll(): Promise<RelatorioVendaResponseDto[]> {
-    return this.relatorioRepository.getRelatoriosVendas();
+    const timestamp = new Date().toISOString();
+    this.logger.log(`[${timestamp}] Recuperando todos os relatórios de vendas`);
+    try {
+      const relatorios = await this.relatorioRepository.getRelatoriosVendas();
+      this.logger.log(`[${timestamp}] Relatórios recuperados com sucesso`);
+      return relatorios;
+    } catch (error) {
+      this.logger.error(
+        `[${timestamp}] Erro ao recuperar relatórios de vendas: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
   }
 }

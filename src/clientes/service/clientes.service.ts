@@ -20,8 +20,9 @@ export class ClientesService {
     createClienteDto: CreateClienteDto,
     tipoCliente: TipoCliente,
   ): Promise<Cliente> {
+    const timestamp = new Date().toISOString();
     this.logger.log(
-      `Iniciando criação de cliente: ${JSON.stringify(createClienteDto)}`,
+      `[${timestamp}] Iniciando criação de cliente: ${JSON.stringify(createClienteDto)}`,
     );
 
     this.validarTipoCliente(tipoCliente);
@@ -31,7 +32,9 @@ export class ClientesService {
     );
 
     if (clienteExistente) {
-      this.logger.warn(`Cliente com email ${createClienteDto.email} já existe`);
+      this.logger.warn(
+        `[${timestamp}] Cliente com email ${createClienteDto.email} já existe`,
+      );
       throw new ConflictException(
         `Cliente com email ${createClienteDto.email} já existe`,
       );
@@ -39,6 +42,7 @@ export class ClientesService {
 
     const senhaHash = await this.hashSenha(createClienteDto.senha);
 
+    this.logger.log(`[${timestamp}] Cliente criado com sucesso`);
     return this.clienteRepository.createClient(
       { ...createClienteDto, senha: senhaHash },
       tipoCliente,
@@ -46,26 +50,36 @@ export class ClientesService {
   }
 
   async findByEmail(email: string): Promise<Cliente | undefined> {
-    this.logger.log(`Iniciando busca de cliente pelo email: ${email}`);
+    const timestamp = new Date().toISOString();
+    this.logger.log(
+      `[${timestamp}] Iniciando busca de cliente pelo email: ${email}`,
+    );
     return this.clienteRepository.findByEmail(email);
   }
 
   async findAll(): Promise<Cliente[]> {
-    this.logger.log('Iniciando busca de todos os clientes');
+    const timestamp = new Date().toISOString();
+    this.logger.log(`[${timestamp}] Iniciando busca de todos os clientes`);
     const clientes = await this.clienteRepository.findAllClients();
 
     if (clientes.length === 0) {
-      this.logger.warn('Nenhum cliente encontrado na base de dados');
+      this.logger.warn(
+        `[${timestamp}] Nenhum cliente encontrado na base de dados`,
+      );
       throw new NotFoundException('Nenhum cliente encontrado.');
     }
 
+    this.logger.log(
+      `[${timestamp}] ${clientes.length} cliente(s) encontrado(s)`,
+    );
     return clientes;
   }
 
   private validarTipoCliente(tipo: string): void {
-    this.logger.log(`Validando tipo de cliente: ${tipo}`);
+    const timestamp = new Date().toISOString();
+    this.logger.log(`[${timestamp}] Validando tipo de cliente: ${tipo}`);
     if (!this.tipos.includes(tipo)) {
-      this.logger.warn(`Tipo de cliente inválido: ${tipo}`);
+      this.logger.warn(`[${timestamp}] Tipo de cliente inválido: ${tipo}`);
       throw new ConflictException(
         `Tipo de cliente inválido. Permitidos: ${this.tipos.join(', ')}`,
       );
@@ -73,7 +87,8 @@ export class ClientesService {
   }
 
   private async hashSenha(senha: string): Promise<string> {
-    this.logger.log('Iniciando hash da senha');
+    const timestamp = new Date().toISOString();
+    this.logger.log(`[${timestamp}] Iniciando hash da senha`);
     const salt = await bcrypt.genSalt(10);
     return bcrypt.hash(senha, salt);
   }

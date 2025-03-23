@@ -7,34 +7,38 @@ import { CompraStatus } from '../../compras/entities/compra.entity';
 export class PagamentoService {
   private readonly logger = new Logger(PagamentoService.name);
 
-  constructor(
-    private readonly pagamentoRepository: PagamentoRepository,
-  ) {}
+  constructor(private readonly pagamentoRepository: PagamentoRepository) {}
 
   async simulatePayment(compraId: number): Promise<Pagamento> {
+    const timestamp = new Date().toISOString();
     this.logger.log(
-      `Iniciando simulação de pagamento para compraId: ${compraId}`,
+      `[${timestamp}] Iniciando simulação de pagamento para compraId: ${compraId}`,
     );
 
     const compra = await this.pagamentoRepository.findCompraById(compraId);
 
     if (!compra) {
-      this.logger.error(`Compra com id ${compraId} não encontrada`);
+      this.logger.error(
+        `[${timestamp}] Compra com id ${compraId} não encontrada. Operação abortada.`,
+      );
       throw new NotFoundException('Compra não encontrada');
     }
 
     try {
       const pagamento = await this.pagamentoRepository.createPagamento(compra);
 
-      await this.pagamentoRepository.updateCompraStatus(compra, CompraStatus.PAGO);
+      await this.pagamentoRepository.updateCompraStatus(
+        compra,
+        CompraStatus.PAGO,
+      );
 
       this.logger.log(
-        `Pagamento simulado com sucesso para compraId: ${compraId}`,
+        `[${timestamp}] Pagamento simulado com sucesso para compraId: ${compraId}. Status atualizado para ${CompraStatus.PAGO}.`,
       );
       return pagamento;
     } catch (error) {
       this.logger.error(
-        `Erro ao simular pagamento para compraId: ${compraId}`,
+        `[${timestamp}] Erro ao simular pagamento para compraId: ${compraId}. Detalhes do erro: ${error.message}`,
         error.stack,
       );
       throw error;
