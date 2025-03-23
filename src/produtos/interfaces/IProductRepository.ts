@@ -1,6 +1,6 @@
 import { CreateProdutoDto } from '../dto/create-produto.dto';
 import { Produto } from '../entities/produto.entity';
-import { CategoriaEnum } from '../service/produtos.service';
+import { CategoriaEnum } from '../enums/categoria.enum';
 
 export interface IProductRepository {
   createProduct(dto: CreateProdutoDto, categoria: CategoriaEnum): Promise<Produto>;

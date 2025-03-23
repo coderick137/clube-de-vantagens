@@ -2,13 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateProdutoDto } from '../dto/create-produto.dto';
 import { ProdutoRepository } from '../repository/produto.repository';
 import { Produto } from '../entities/produto.entity';
-
-export enum CategoriaEnum {
-  ELETRONICOS = 'Eletrônicos',
-  ELETRODOMESTICOS = 'Eletrodomesticos',
-  MOVEIS = 'Moveis',
-  BRINQUEDOS = 'Brinquedos',
-}
+import { CategoriaEnum } from '../enums/categoria.enum'; // Mover CategoriaEnum para um arquivo separado
 
 @Injectable()
 export class ProdutosService {
@@ -24,8 +18,10 @@ export class ProdutosService {
       `Iniciando criação do produto: ${JSON.stringify(createProdutoDto)}`,
     );
     try {
-      const produto =
-        await this.produtoRepository.createProduct(createProdutoDto, categoria);
+      const produto = await this.produtoRepository.createProduct(
+        createProdutoDto,
+        categoria,
+      );
       this.logger.log(`Produto criado com sucesso: ${JSON.stringify(produto)}`);
       return produto;
     } catch (error) {
@@ -46,30 +42,11 @@ export class ProdutosService {
       const validPage = Number(page) || 1;
       const validLimit = Number(limit) || 10;
 
-      const filters: Record<string, any> = {};
-      if (categoria) {
-        filters.categoria = categoria;
-      }
-
-      let result: { data: Produto[]; total: number };
-
-      if (filters.categoria) {
-        const categoria = filters.categoria;
-        const [data, total] = await this.produtoRepository
-          .createQueryBuilder('p')
-          .where('p.categoria = :categoria', { categoria })
-          .take(validLimit)
-          .skip((validPage - 1) * validLimit)
-          .getManyAndCount();
-        result = { data, total };
-      } else {
-        const [data, total] = await this.produtoRepository.findAndCount({
-          where: filters,
-          take: validLimit,
-          skip: (validPage - 1) * validLimit,
-        });
-        result = { data, total };
-      }
+      const result = await this.produtoRepository.findAllWithPagination(
+        validPage,
+        validLimit,
+        categoria,
+      );
 
       this.logger.log(
         `Produtos encontrados: ${result.data.length}, Total: ${result.total}`,

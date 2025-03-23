@@ -3,7 +3,7 @@ import { DataSource, Repository } from 'typeorm';
 import { Produto } from '../entities/produto.entity';
 import { IProductRepository } from '../interfaces/IProductRepository';
 import { CreateProdutoDto } from '../dto/create-produto.dto';
-import { CategoriaEnum } from '../service/produtos.service';
+import { CategoriaEnum } from '../enums/categoria.enum';
 
 @Injectable()
 export class ProdutoRepository
@@ -60,5 +60,24 @@ export class ProdutoRepository
       throw new NotFoundException(`Produto com ID ${id} não encontrado.`);
     }
     return produto;
+  }
+
+  async findAllWithPagination(
+    page: number,
+    limit: number,
+    categoria?: CategoriaEnum,
+  ): Promise<{ data: Produto[]; total: number }> {
+    const queryBuilder = this.createQueryBuilder('produto');
+
+    if (categoria) {
+      queryBuilder.where('produto.categoria = :categoria', { categoria });
+    }
+
+    const [data, total] = await queryBuilder
+      .take(limit)
+      .skip((page - 1) * limit)
+      .getManyAndCount();
+
+    return { data, total };
   }
 }

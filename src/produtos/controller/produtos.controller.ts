@@ -9,7 +9,7 @@ import {
   UnauthorizedException,
   Logger,
 } from '@nestjs/common';
-import { CategoriaEnum, ProdutosService } from '../service/produtos.service';
+import { ProdutosService } from '../service/produtos.service';
 import { CreateProdutoDto } from '../dto/create-produto.dto';
 import {
   ApiBearerAuth,
@@ -19,6 +19,7 @@ import {
 } from '@nestjs/swagger';
 import { Produto } from '../entities/produto.entity';
 import { AuthGuard } from '../../auth/guard/auth.guard';
+import { CategoriaEnum } from '../enums/categoria.enum';
 
 @Controller('produtos')
 export class ProdutosController {
