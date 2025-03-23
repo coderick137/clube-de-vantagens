@@ -16,22 +16,9 @@ export class RelatoriosService {
   ): Promise<RelatorioVendaResponseDto> {
     this.logger.log(`Iniciando geração de relatório com filtros: ${JSON.stringify(filtros)}`);
     try {
-      const { compras, totalVendas, totalReceita } =
-        await this.relatorioRepository.gerarRelatorioVenda(filtros);
-      const response: RelatorioVendaResponseDto = {
-        message: 'Relatório gerado com sucesso',
-        compras: compras.map((compra) => ({
-          produtos: compra.produtos.map((produto) => ({
-            produtoId: produto.produtoId,
-            quantidade: produto.quantidade,
-          })),
-          status: compra.status,
-        })),
-        totalVendas,
-        totalReceita,
-      };
+      const relatorio = await this.relatorioRepository.gerarRelatorioVenda(filtros);
       this.logger.log('Relatório gerado com sucesso');
-      return response;
+      return relatorio;
     } catch (error) {
       this.logger.error('Erro ao gerar relatório de vendas', error.stack);
       throw error;
