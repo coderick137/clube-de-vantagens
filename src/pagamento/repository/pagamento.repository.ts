@@ -13,26 +13,23 @@ export class PagamentoRepository {
     private readonly compraRepository: Repository<Compra>,
   ) {}
 
-  async simulatePayment(compraId: number): Promise<Pagamento> {
-    const compra = await this.compraRepository.findOne({
+  async findCompraById(compraId: number): Promise<Compra | null> {
+    return this.compraRepository.findOne({
       where: { id: compraId },
       relations: ['produtos', 'cliente'],
     });
+  }
 
-    if (!compra) {
-      throw new NotFoundException('Compra não encontrada');
-    }
-
+  async createPagamento(compra: Compra): Promise<Pagamento> {
     const pagamento = this.pagamentoRepository.create({
       compra,
       status: 'Pago',
     });
+    return this.pagamentoRepository.save(pagamento);
+  }
 
-    await this.pagamentoRepository.save(pagamento);
-
-    compra.status = CompraStatus.PAGO;
-    await this.compraRepository.save(compra);
-
-    return pagamento;
+  async updateCompraStatus(compra: Compra, status: CompraStatus): Promise<Compra> {
+    compra.status = status;
+    return this.compraRepository.save(compra);
   }
 }

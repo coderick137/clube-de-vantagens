@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { PagamentoRepository } from '../repository/pagamento.repository';
-import { CompraRepository } from '../../compras/repositories/compra.repository';
 import { Pagamento } from '../entities/pagamento.entity';
 import { CompraStatus } from '../../compras/entities/compra.entity';
 
@@ -10,7 +9,6 @@ export class PagamentoService {
 
   constructor(
     private readonly pagamentoRepository: PagamentoRepository,
-    private readonly compraRepository: CompraRepository,
   ) {}
 
   async simulatePayment(compraId: number): Promise<Pagamento> {
@@ -18,10 +16,7 @@ export class PagamentoService {
       `Iniciando simulação de pagamento para compraId: ${compraId}`,
     );
 
-    const compra = await this.compraRepository.findOne({
-      where: { id: compraId },
-      relations: ['produtos', 'cliente'],
-    });
+    const compra = await this.pagamentoRepository.findCompraById(compraId);
 
     if (!compra) {
       this.logger.error(`Compra com id ${compraId} não encontrada`);
@@ -29,11 +24,9 @@ export class PagamentoService {
     }
 
     try {
-      const pagamento =
-        await this.pagamentoRepository.simulatePayment(compraId);
+      const pagamento = await this.pagamentoRepository.createPagamento(compra);
 
-      compra.status = CompraStatus.PAGO;
-      await this.compraRepository.save(compra);
+      await this.pagamentoRepository.updateCompraStatus(compra, CompraStatus.PAGO);
 
       this.logger.log(
         `Pagamento simulado com sucesso para compraId: ${compraId}`,
