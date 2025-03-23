@@ -1,6 +1,6 @@
-# API de Gerenciamento de Produtos
+# API de Clube de beneficios
 
-Esta é uma API REST desenvolvida em NestJS para gerenciar um CRUD de produtos. A API utiliza MariaDB como banco de dados, Docker para containerização e Zod para validação de dados. Além disso, a documentação da API é gerada automaticamente com Swagger e a autenticação é realizada via JWT com AuthGuard.
+Esta é uma API REST desenvolvida em NestJS para gerenciar um clube de beneficios. A API utiliza Postgre como banco de dados, Docker para containerização. Além disso, a documentação da API é gerada automaticamente com Swagger e a autenticação é realizada via JWT com AuthGuard.
 
 ## Sumário
 
