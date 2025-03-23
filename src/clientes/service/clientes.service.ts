@@ -27,13 +27,11 @@ export class ClientesService {
       const { nome, email, senha, tipo } = createClienteDto;
       this.validarTipoCliente(tipo);
 
-      const clienteExistente = await this.clienteRepository.findOne({
-        where: { email },
-      });
+      const clienteExistente = await this.clienteRepository.findByEmail(email);
 
       if (clienteExistente) {
-        this.logger.warn(`E-mail já cadastrado: ${email}`);
-        throw new ConflictException('E-mail já cadastrado');
+        this.logger.warn(`Cliente com email ${email} já existe`);
+        throw new ConflictException(`Cliente com email ${email} já existe`);
       }
 
       const senhaHash = await this.hashSenha(senha);
@@ -45,7 +43,7 @@ export class ClientesService {
         tipo,
       });
 
-      return await this.clienteRepository.save(novoCliente);
+      return await this.clienteRepository.createClient(novoCliente);
     } catch (error) {
       this.logger.error(`Erro ao criar cliente: ${error.message}`, error.stack);
       throw error;
