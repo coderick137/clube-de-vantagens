@@ -40,13 +40,17 @@ Esta é uma API REST desenvolvida em NestJS para gerenciar um clube de beneficio
    cd clube-de-vantagens
    ```
 
-2. Inicie o banco de dados:
+2. Execute o comando abaixo para iniciar o banco de dados e os demais serviços necessários:
 
-   ```bash
-   docker-compose up -d
-   ```
+```bash
+docker-compose up -d
+```
 
-   Ou rode o porojeto:
+Esse comando irá configurar e iniciar todos os serviços necessários para o funcionamento da aplicação.
+
+3. rode o porojeto:
+
+   **⚠️ Importante:** Certifique-se de que o banco de dados esteja em execução antes de iniciar a aplicação. Para isso, utilize o comando abaixo para inicializar os contêineres do Docker, incluindo o banco de dados PostgreSQL:
 
    ```bash
    # development
@@ -55,16 +59,16 @@ Esta é uma API REST desenvolvida em NestJS para gerenciar um clube de beneficio
    # watch mode
    $ npm run start:dev
 
-   # production mode
-   $ npm run start:prod
+   # TESTES
+   $ npm run test
 
    ```
 
-3. Acesse a API em:
+4. Acesse a API em:
 
    - Swagger UI: <http://localhost:3000/api>
 
-4. Para parar os contêineres, execute:
+5. Para parar os contêineres, execute:
 
    ```bash
    docker-compose down
