@@ -1,7 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateCompraDto } from '../dto/create-compra.dto';
 import { CompraRepository } from '../repositories/compra.repository';
 import { CompraProdutoRepository } from '../repositories/compra-produto.repository';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class ComprasService {
@@ -10,6 +12,8 @@ export class ComprasService {
   constructor(
     private readonly comprasRepository: CompraRepository,
     private readonly compraProdutoRepository: CompraProdutoRepository,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
   ) {}
 
   async create(createCompraDto: CreateCompraDto, clienteId: number) {
@@ -55,13 +59,24 @@ export class ComprasService {
       `[${timestamp}] [listClientPurchases] Listando compras para clienteId: ${clienteId}`,
     );
     try {
+      const cacheKey = `compras-${clienteId}`;
+      const cacheData = await this.cacheManager.get(cacheKey);
+
+      if (cacheData) {
+        this.logger.log(
+          `[${timestamp}] [listClientPurchases] Compras listadas com sucesso para clienteId: ${clienteId} a partir do cache`,
+        );
+        return cacheData;
+      }
+
       const compras =
         await this.comprasRepository.listClientPurchases(clienteId);
 
       this.logger.log(
         `[${timestamp}] [listClientPurchases] Compras listadas com sucesso para clienteId: ${clienteId}, total: ${compras.length}`,
       );
-      return compras.map((compra) => ({
+
+      const comprasFormatted = compras.map((compra) => ({
         id: compra.id,
         status: compra.status,
         clienteId: compra.cliente.id,
@@ -70,6 +85,9 @@ export class ComprasService {
           quantidade: prod.quantidade,
         })),
       }));
+
+      await this.cacheManager.set(cacheKey, comprasFormatted, 3600);
+      return comprasFormatted;
     } catch (error) {
       this.logger.error(
         `[${timestamp}] [listClientPurchases] Erro ao listar compras para clienteId: ${clienteId}, detalhes: ${error.message}`,

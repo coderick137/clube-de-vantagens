@@ -8,10 +8,15 @@ import { CompraRepository } from './repositories/compra.repository';
 import { CompraProdutoRepository } from './repositories/compra-produto.repository';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Compra, CompraProduto]),
+    CacheModule.register({
+      ttl: 3600,
+      isGlobal: true,
+    }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
